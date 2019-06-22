@@ -1,0 +1,4 @@
+jenkins_master_config_dir: "/etc/jenkins_master"
+jenkins_master_home: "/var/opt/jenkins_master"
+jenkins_master_interface: "eth0"
+

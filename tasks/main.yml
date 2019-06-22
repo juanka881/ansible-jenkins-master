@@ -1,0 +1,56 @@
+---
+- name: create config dir
+  file:
+    path: "{{ jenkins_master_config_dir }}"
+    state: directory
+
+- name: create home dir
+  file:
+    path: "{{ jenkins_master_home }}"
+    state: directory
+    mode: 0770
+
+- name: set home dir group to (jenkins=1000)
+  file:
+    path: "{{ jenkins_master_home }}"
+    state: directory
+    group: "1000"
+    recurse: yes
+
+- name: get inteface ip
+  shell: "ifconfig {{ jenkins_master_interface }} | grep \"inet \" | awk '{print $2}'"
+  register: jenkins_master_ip
+
+- name: allow jenkins 8080 in
+  ufw:
+    rule: allow
+    comment: "jenkins {{ jenkins_master_interface }}:8080 in"
+    direction: in
+    proto: tcp
+    port: "8080"
+    interface: "{{ jenkins_master_interface }}"
+
+- name: allow jenkins 5000 in
+  ufw:
+    rule: allow
+    comment: "jenkins {{ jenkins_master_interface }}:5000 in"
+    direction: in
+    proto: tcp
+    port: "5000"
+    interface: "{{ jenkins_master_interface }}"
+
+- name: copy docker compose file
+  template:
+    src: "docker-compose.j2.yml"
+    dest: "{{ jenkins_master_config_dir }}/docker-compose.yml"
+    mode: 0770
+
+- name: create services
+  shell: "docker-compose up --no-start --remove-orphans"
+  args:
+    chdir: "{{ jenkins_master_config_dir }}"
+
+- name: (re)start services
+  shell: "docker-compose restart"
+  args:
+    chdir: "{{ jenkins_master_config_dir }}"
