@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  role_name: juankakode.jenkins-master
+  author: "juankakode"
+  description: "install jenkins master"
+  min_ansible_version: "2.4"
+
+dependencies: []
